@@ -2,39 +2,12 @@ var five = require("johnny-five");
 var temporal = require("temporal");
 var board = new five.Board();
 
-function changeColorAnimation(led, color) {
-  led.color(color);
-
-  // Fade In
-  for (var index = 0; index < 100; index++) {
-    temporal.queue([
-      {
-        wait: 1000,
-        task: function () {
-          led.intensity(index);
-        },
-      },
-    ]);
-  }
-
-  // Fade Out
-  for (var index = 0; index < 100; index++) {
-    temporal.queue([
-      {
-        wait: 1000,
-        task: function () {
-          led.intensity(100 - index);
-        },
-      },
-    ]);
-  }
-}
-
 board.on("ready", function () {
   var unit = 0;
   var intensity = 1;
-  var colors = ["red", "green", "blue"];
+  var colors = ["red", "green", "blue", "yellow", "purple"];
   var index = 0;
+  var mainIntensity = 100;
 
   var led = new five.Led.RGB({
     pins: [3, 5, 6],
@@ -106,29 +79,41 @@ board.on("ready", function () {
       },
     },
     {
-      loop: 25,
+      loop: 20,
       task: function () {
         console.log("Execution # " + unit);
-        led.intensity(100 - intensity);
+        var current =
+          mainIntensity === 100
+            ? mainIntensity - intensity
+            : mainIntensity + intensity;
+        led.intensity(current);
+
         intensity += 1;
         unit += 1;
-        console.log("INTESIDAD: " + intensity);
-        if (intensity === 100) {
+        console.log("INTESITY : " + intensity);
+
+        if (intensity > 100) {
           intensity = 0;
 
           index++;
 
-          if (index >= 3) {
+          if (index >= 5) {
             index = 0;
           }
 
-          led.color(colors[index]);
+          if (mainIntensity === 100) {
+            mainIntensity = 0;
+          } else {
+            mainIntensity = 100;
+          }
+
+          if (mainIntensity === 0) {
+            led.color(colors[index]);
+          } else {
+            mainIntensity === 0;
+          }
         }
       },
     },
   ]);
-
-  /* changeColorAnimation(led, "red");
-  changeColorAnimation(led, "green");
-  changeColorAnimation(led, "blue"); */
 });
